@@ -11,7 +11,8 @@
   "dependencies": {
     "@tscircuit/runframe": "^0.0.1958",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "tscircuit": "^0.0.1747"
   },
   "devDependencies": {
     "@types/react": "^19.1.10",
