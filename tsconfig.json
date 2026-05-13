@@ -11,13 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "baseUrl": ".",
-    "paths": {
-      "@tscircuit/runframe/runner": [
-        "../runframe/lib/runner.ts"
-      ],
-      "lib/*": ["../runframe/lib/*"]
-    },
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
