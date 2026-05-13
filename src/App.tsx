@@ -1,5 +1,5 @@
 import { RunFrame } from "@tscircuit/runframe/runner"
-import { useMemo, useState } from "react"
+import { type ChangeEvent, useMemo, useState } from "react"
 import arduinoUnoKicadPcb from "./assets/arduino-uno.source.kicad_pcb?raw"
 
 type PcbBounds = {
@@ -10,7 +10,7 @@ type PcbBounds = {
 }
 
 const initialMainTsx = `
-import { circuitJson } from "./arduino-uno.source.kicad_pcb"
+import { circuitJson } from "./uploaded-board.kicad_pcb"
 
 circuit.add(
   <board>
@@ -44,30 +44,62 @@ const appendAutoroutingPhase = (code: string, region: PcbBounds) => {
 
 export default function App() {
   const [mainTsx, setMainTsx] = useState(initialMainTsx)
+  const [kicadPcb, setKicadPcb] = useState(arduinoUnoKicadPcb)
+  const [boardName, setBoardName] = useState("Arduino Uno")
+
+  const handlePcbUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setKicadPcb(await file.text())
+    setBoardName(file.name)
+    setMainTsx(initialMainTsx)
+  }
+
+  const resetToDefaultBoard = () => {
+    setKicadPcb(arduinoUnoKicadPcb)
+    setBoardName("Arduino Uno")
+    setMainTsx(initialMainTsx)
+  }
 
   const fsMap = useMemo(
     () => ({
       "main.tsx": mainTsx,
-      "arduino-uno.source.kicad_pcb": arduinoUnoKicadPcb,
+      "uploaded-board.kicad_pcb": kicadPcb,
     }),
-    [mainTsx],
+    [kicadPcb, mainTsx],
   )
 
   return (
     <main className="app-shell">
       <header className="app-header">
-        <h1 style={{
-          fontWeight: "bold",
-          fontSize: "2rem",
-        }}>Arduino Uno</h1>
-        <p style={{
-          fontSize: "1rem",
-        }}>
-          Click on the Bounds and drag a rectangle to reroute the region
-        </p>
+        <div className="header-copy">
+          <h1>{boardName}</h1>
+          <p className="instructions">
+            Click on the Bounds and drag a rectangle to reroute the region
+          </p>
+        </div>
+
+        <div className="upload-controls">
+          <label className="upload-button">
+            Upload .kicad_pcb
+            <input
+              type="file"
+              accept=".kicad_pcb"
+              onChange={handlePcbUpload}
+            />
+          </label>
+          <button
+            className="reset-button"
+            type="button"
+            onClick={resetToDefaultBoard}
+          >
+            Reset
+          </button>
+        </div>
       </header>
 
-      <section className="runframe-panel" aria-label="Arduino Uno RunFrame demo">
+      <section className="runframe-panel" aria-label={`${boardName} RunFrame demo`}>
         <RunFrame
           fsMap={fsMap}
           entrypoint="main.tsx"
